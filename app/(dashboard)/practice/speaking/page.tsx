@@ -31,7 +31,7 @@ const SpeakingPracticePage = async () => {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-xl">Question:{exercise.subType}</CardTitle>
+          <CardTitle className="text-xl">Question: {exercise.subType}</CardTitle>
           {/* Timer will be a Client Compoment, wrapped in a server component slot */}
           <Timer initialTime={exercise.timeLimit} key={exercise.id} />
         </CardHeader>
