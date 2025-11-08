@@ -40,7 +40,7 @@ const SpeakingPracticePage = async () => {
           <p className="text-lg font-medium mb-4">{exercise.content.questionText}</p>
 
           {/* Static content (server component) */}
-          <div className="p-4 border rounded-md bg-muted.30">
+          <div className="p-4 border rounded-md bg-muted/30">
             <p className="font-serif leading-relaxed text-gray-700 dark:text-gray-300">
               {exercise.content.readingPassage}
             </p>
