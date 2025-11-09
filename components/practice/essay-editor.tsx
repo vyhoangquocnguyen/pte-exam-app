@@ -19,14 +19,14 @@ const Toolbar = ({ editor }: { editor: any }) => (
       disabled={!editor.can().chain().focus().toggleBold().run()}
       variant={editor.isActive("bold") ? "secondary" : "ghost"}
       size="sm">
-      **B**
+      B
     </Button>
     <Button
       onClick={() => editor.chain().focus().toggleItalic().run()}
       disabled={!editor.can().chain().focus().toggleItalic().run()}
       variant={editor.isActive("italic") ? "secondary" : "ghost"}
       size="sm">
-      *I*
+      I
     </Button>
   </div>
 );
@@ -43,6 +43,7 @@ export default function EssayEditor({ onUpdateContent, initialContent }: EssayEd
         }),
       ],
       content: initialContent || "",
+      immediatelyRender: false,
       editorProps: {
         attributes: {
           // Tailwind styling for the editor area
@@ -81,7 +82,7 @@ export default function EssayEditor({ onUpdateContent, initialContent }: EssayEd
   return (
     <Card className="w-full">
       <Toolbar editor={editor} />
-       <EditorContent editor={editor} />
+      <EditorContent editor={editor} />
       <Separator />
       <CardFooter className="flex justify-end pt-3">
         <span
