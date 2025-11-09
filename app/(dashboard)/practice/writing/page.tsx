@@ -55,10 +55,7 @@ export default function WritingPracticePage() {
 
       {/* Submission Footer */}
       <div className="flex justify-end">
-        <SubmitButton
-          exerciseId={exercise.id}
-          // Future: Pass the content and wordCount to the submission logic
-        />
+        <SubmitButton exerciseId={exercise.id} />{" "}
       </div>
     </div>
   );

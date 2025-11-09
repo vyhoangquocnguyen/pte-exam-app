@@ -6,6 +6,8 @@ import { Loader2 } from "lucide-react";
 
 interface SubmitButtonProps {
   exerciseId: string;
+  // content: string;
+  // wordCount: number;
   // Future: userResponse: Blob | string;
 }
 

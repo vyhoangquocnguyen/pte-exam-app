@@ -38,7 +38,7 @@ const ListeningInteraction = ({ exerciseId, audioUrl, blanks }: ListeningInterac
       <Card>
         <CardContent className="pt-6">
           <CardDescription className="mb-3">Listen carefully and fill in the missing words.</CardDescription>
-          <audio controls src={audioUrl} className="w-full h-10" />
+          <audio controls src={audioUrl} className="w-full h-10" aria-label="Listening exercise audio" />
         </CardContent>
       </Card>
 
@@ -47,7 +47,9 @@ const ListeningInteraction = ({ exerciseId, audioUrl, blanks }: ListeningInterac
         <CardContent className="grid gap-4 pt-6">
           {blanks.map((blank, index) => (
             <div key={blank.id} className="flex items-center space-x-2">
-              <span className="font-semibold text-lg">{index + 1}.</span>
+              <label htmlFor={`blank-${blank.id}`} className="font-semibold text-lg">
+                {index + 1}.
+              </label>
               <Input
                 type="text"
                 placeholder={blank.placeholder}

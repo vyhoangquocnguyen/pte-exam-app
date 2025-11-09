@@ -13,7 +13,7 @@ interface AIFeedbackProps {
   taskType: "Speaking" | "Writing" | "Reading" | "Listening";
 }
 
-// Utility function to get type-safe entries from an object.  
+// Utility function to get type-safe entries from an object.
 function getTypedObjectEntries<T extends Record<string, any>>(obj: T): [keyof T, T[keyof T]][] {
   return Object.entries(obj) as [keyof T, T[keyof T]][];
 }
@@ -40,14 +40,16 @@ const AIFeedback = ({ feedback, taskType }: AIFeedbackProps) => {
 
       <CardContent className="pt-6">
         <Tabs defaultValue="summary" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 h-12">
+          <TabsList
+            className={`grid w-full h-12 grid-cols-2 md:grid-cols-3 ${
+              taskType === "Speaking" ? "lg:grid-cols-4" : ""
+            }`}>
             <TabsTrigger value="summary">Overall Summary</TabsTrigger>
             <TabsTrigger value="scores">Skill Breakdown</TabsTrigger>
             <TabsTrigger value="corrections">Detailed Corrections</TabsTrigger>
             {/* Conditionally show Speaking Metrics tab */}
             {taskType === "Speaking" && <TabsTrigger value="metrics">Speaking Metrics</TabsTrigger>}
           </TabsList>
-
           {/* Tab 1: Overall Summary */}
           <TabsContent value="summary" className="mt-4 p-4 border rounded-md bg-secondary/10">
             <h3 className="text-lg font-semibold mb-2 text-primary-foreground">General Evaluation</h3>
@@ -75,12 +77,14 @@ const AIFeedback = ({ feedback, taskType }: AIFeedbackProps) => {
                     {item.type}
                   </Badge>
                   <p className="text-sm">
-                    **Original:** <span className="line-through text-red-600">{item.text}</span>
+                    <strong>Original:</strong> <span className="line-through text-red-600">{item.text}</span>
                   </p>
                   <p className="text-sm mt-1">
-                    **Correction:** <span className="font-semibold text-green-600">{item.correction}</span>
+                    <strong>Correction:</strong> <span className="font-semibold text-green-600">{item.correction}</span>
                   </p>
-                  <p className="text-xs italic mt-2 text-muted-foreground">**Reason:** {item.explanation}</p>
+                  <p className="text-xs italic mt-2 text-muted-foreground">
+                    <strong>Reason:</strong> {item.explanation}
+                  </p>
                 </div>
               ))
             ) : (

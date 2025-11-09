@@ -87,8 +87,8 @@ export default function EssayEditor({ onUpdateContent, initialContent }: EssayEd
       <CardFooter className="flex justify-end pt-3">
         <span
           className={`text-sm font-medium ${currentWordCount > maxWords ? "text-red-500" : "text-muted-foreground"}`}>
-          Words: **{currentWordCount}** / {maxWords}
-        </span>
+          Words: <strong>{currentWordCount}</strong> / {maxWords}
+        </span>{" "}
       </CardFooter>
     </Card>
   );

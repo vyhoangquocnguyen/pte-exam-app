@@ -1,6 +1,6 @@
 export type SkillScore = "Accuracy" | "Grammar" | "Vocabulary" | "Fluency" | "Content";
 
-// Defome a specific, actionable piece of feedback
+// Defominates a specific, actionable piece of feedback
 export interface FeedbackItem {
   type: "Grammar" | "Vocabulary" | "Fluency" | "Punctuation" | "Spelling" | "Content";
   text: string; //The original text/phrase the AI flagged
