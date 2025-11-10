@@ -15,6 +15,7 @@ interface EssayEditorProps {
 const Toolbar = ({ editor }: { editor: any }) => (
   <div className="flex items-center gap-2 p-2 border-b rounded-t-lg bg-gray-50 dark:bg-gray-800">
     <Button
+      type="button"
       onClick={() => editor.chain().focus().toggleBold().run()}
       disabled={!editor.can().chain().focus().toggleBold().run()}
       variant={editor.isActive("bold") ? "secondary" : "ghost"}
@@ -22,6 +23,7 @@ const Toolbar = ({ editor }: { editor: any }) => (
       B
     </Button>
     <Button
+      type="button"
       onClick={() => editor.chain().focus().toggleItalic().run()}
       disabled={!editor.can().chain().focus().toggleItalic().run()}
       variant={editor.isActive("italic") ? "secondary" : "ghost"}
