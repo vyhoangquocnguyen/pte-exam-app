@@ -6,6 +6,8 @@ import { Loader2 } from "lucide-react";
 
 interface SubmitButtonProps {
   exerciseId: string;
+  // content: string;
+  // wordCount: number;
   // Future: userResponse: Blob | string;
 }
 
@@ -37,15 +39,17 @@ export default function SubmitButton({ exerciseId }: SubmitButtonProps) {
   };
 
   return (
-    <Button onClick={handleSubmit} disabled={isSubmitting} className="px-8 py-6 text-lg">
-      {isSubmitting ? (
-        <>
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-          Submitting...
-        </>
-      ) : (
-        "Submit Answer & Get Feedback"
-      )}
-    </Button>
+    <div className="flex items-center border p-2">
+      <Button onClick={handleSubmit} disabled={isSubmitting} className="px-8 py-6 text-lg">
+        {isSubmitting ? (
+          <>
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            Submitting...
+          </>
+        ) : (
+          "Submit Answer & Get Feedback"
+        )}
+      </Button>
+    </div>
   );
 }
