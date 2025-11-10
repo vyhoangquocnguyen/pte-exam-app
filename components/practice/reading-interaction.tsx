@@ -24,7 +24,6 @@ const reorder = (list: ParagraphItem[], startIndex: number, endIndex: number) =>
 };
 
 export default function ReadingInteraction({ exerciseId, initialItems }: ReadingInteractionProps) {
-  // ✅ STATE LOGIC HERE
   const [items, setItems] = useState(initialItems);
 
   const onDragEnd = (result: DropResult) => {

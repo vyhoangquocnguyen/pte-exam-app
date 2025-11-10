@@ -51,6 +51,7 @@ export default function EssayEditor({ onUpdateContent, initialContent }: EssayEd
             "min-h-[300px] max-h-[500px] overflow-y-auto p-4 border rounded-b-lg focus:outline-none ring-2 ring-transparent focus:ring-primary/50 transition-colors",
         },
       },
+
       onUpdate: ({ editor }) => {
         // 1. Get plain text for word counting
         const text = editor.getText({ blockSeparator: " " });
