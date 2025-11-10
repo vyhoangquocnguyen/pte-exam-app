@@ -51,6 +51,7 @@ const ListeningInteraction = ({ exerciseId, audioUrl, blanks }: ListeningInterac
                 {index + 1}.
               </label>
               <Input
+                id={`blank-${blank.id}`}
                 type="text"
                 placeholder={blank.placeholder}
                 value={answers[blank.id]}
