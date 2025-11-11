@@ -2,6 +2,13 @@ export type SkillType = "speaking" | "writing" | "reading" | "listening";
 
 export type Difficulty = "easy" | "medium" | "hard";
 
+// export * from "./user";
+// export * from "./exercise";
+export * from "./skill";
+// export * from "./feedback";
+// export * from "./test";
+// export * from "./api";
+
 export interface User {
   id: string;
   name: string;
@@ -47,4 +54,9 @@ export interface HeroStatsProps {
   testCompleted: number;
   studyStreak: number;
   nextGoal: number;
+}
+
+export interface LayoutContextProps {
+  sidebarOpen: boolean;
+  toggleSidebar: () => void;
 }

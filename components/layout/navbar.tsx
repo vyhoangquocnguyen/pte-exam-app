@@ -21,15 +21,15 @@ const Navbar = () => {
     { name: "Progress", href: "/progress", icon: ChartBarIcon },
   ];
   return (
-    <nav className="absolute top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-gray-200">
+    <nav className="fixed w-full h-16 z-50 backdrop-blur-md bg-white/80 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 ">
+        <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
               <span className="text-xl text-white font-bold font-display">P</span>
             </div>
-            <span className="font-display font-bold text-xl test-gray-900">PTE Master</span>
+            <span className="font-display font-bold text-xl text-gray-900">PTE Master</span>
           </div>
 
           {/* Desktop Navigator */}
@@ -51,7 +51,7 @@ const Navbar = () => {
             </div>
             <button className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
-                <span className="text-whiet text-sm font-semnibold">JD</span>
+                <span className="text-white text-sm font-semibold">JD</span>
               </div>
             </button>
           </div>

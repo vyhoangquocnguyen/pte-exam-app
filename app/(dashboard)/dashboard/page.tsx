@@ -1,12 +1,6 @@
+import ActivityTimeline from "@/components/dashboard/activity-timeline";
 import HeroStats from "@/components/dashboard/hero-stats";
 import SkillsGrid from "@/components/dashboard/skill-grid";
-import {
-
-  MicrophoneIcon,
-  PencilSquareIcon,
-  BookOpenIcon,
-  ClockIcon,
-} from "@heroicons/react/24/outline";
 
 export default function DashboardPage() {
   // Mock data
@@ -45,13 +39,13 @@ export default function DashboardPage() {
   ];
 
   const recentActivity = [
-    { type: "Speaking", task: "Read Aloud", score: 78, time: "2 hours ago" },
-    { type: "Writing", task: "Essay Writing", score: 72, time: "5 hours ago" },
-    { type: "Reading", task: "MCQ Multiple", score: 82, time: "1 day ago" },
+    { type: "speaking" as const, task: "Read Aloud", score: 78, time: "2 hours ago", exerciseId: "ex123" },
+    { type: "writing" as const, task: "Essay Writing", score: 72, time: "5 hours ago", exerciseId: "ex456" },
+    { type: "reading" as const, task: "MCQ Multiple", score: 82, time: "1 day ago", exerciseId: "ex789" },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 lg:pt-16">
+    <div className=" min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 lg:pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -71,46 +65,7 @@ export default function DashboardPage() {
         {/* Recent Activity */}
         <div>
           <h2 className="font-display text-3xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
-          <div className="bg-white rounded-2xl p-6 card-shadow">
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-12 h-12 rounded-lg ${
-                        activity.type === "Speaking"
-                          ? "bg-blue-50"
-                          : activity.type === "Writing"
-                          ? "bg-purple-50"
-                          : "bg-amber-50"
-                      } flex items-center justify-center`}>
-                      {activity.type === "Speaking" && <MicrophoneIcon className="w-6 h-6 text-speaking" />}
-                      {activity.type === "Writing" && <PencilSquareIcon className="w-6 h-6 text-writing" />}
-                      {activity.type === "Reading" && <BookOpenIcon className="w-6 h-6 text-reading" />}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{activity.task}</p>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <ClockIcon className="w-4 h-4" />
-                        {activity.time}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500">Score</p>
-                      <p className="font-display text-2xl font-bold text-gray-900">{activity.score}</p>
-                    </div>
-                    <button className="px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                      Review
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <ActivityTimeline activities={recentActivity} />
         </div>
       </div>
     </div>

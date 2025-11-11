@@ -1,63 +1,15 @@
 // "use client";
 
 import Link from "next/link";
-import { BookOpenIcon, MicrophoneIcon, PencilSquareIcon, SpeakerWaveIcon } from "@heroicons/react/24/outline";
-import { SkillType } from "@/types";
-
-interface Skill {
-  name: SkillType;
-  score: number;
-  progress: number;
-  recentTests: number;
-}
+import { skillConfig , SkillSummary} from "@/types";
 
 interface SkillsGridProps {
-  skills: Skill[];
+  skills: SkillSummary[];
 }
-
-const skillConfig: Record<
-  SkillType,
-  {
-    icon: React.ElementType;
-    color: string;
-    lightColor: string;
-    textColor: string;
-    displayName: string;
-  }
-> = {
-  speaking: {
-    icon: MicrophoneIcon,
-    color: "bg-speaking",
-    lightColor: "bg-blue-50",
-    textColor: "text-speaking",
-    displayName: "Speaking",
-  },
-  writing: {
-    icon: PencilSquareIcon,
-    color: "bg-writing",
-    lightColor: "bg-purple-50",
-    textColor: "text-writing",
-    displayName: "Writing",
-  },
-  reading: {
-    icon: BookOpenIcon,
-    color: "bg-reading",
-    lightColor: "bg-amber-50",
-    textColor: "text-reading",
-    displayName: "Reading",
-  },
-  listening: {
-    icon: SpeakerWaveIcon,
-    color: "bg-listening",
-    lightColor: "bg-pink-50",
-    textColor: "text-listening",
-    displayName: "Listening",
-  },
-};
 
 const SkillsGrid = ({ skills }: SkillsGridProps) =>{
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {skills.map(({ name, score, progress, recentTests }) => {
         const config = skillConfig[name];
         const Icon = config.icon;

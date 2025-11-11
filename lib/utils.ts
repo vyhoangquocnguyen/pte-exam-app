@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { type SkillType } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -26,14 +27,30 @@ export function formatTime(seconds: number): string {
 }
 
 //Get skill color classes
-export function getSkillColer(skill: "speaking" | "writing" | "reading" | "listening"): string {
-  const color = {
-    speaking: "bg-speaking text-white",
-    writing: "bg-writing text-white",
-    reading: "bg-reading text-white",
-    listening: "bg-listening text-white",
+export function getSkillColer(skill: SkillType, variant?: "bg" | "light" | "text"): string {
+  const colors: Record<SkillType, { bg: string; light: string; text: string }> = {
+    speaking: {
+      bg: "bg-speaking",
+      light: "bg-blue-50",
+      text: "text-speaking",
+    },
+    writing: {
+      bg: "bg-writing",
+      light: "bg-purple-50",
+      text: "text-writing",
+    },
+    reading: {
+      bg: "bg-reading",
+      light: "bg-amber-50",
+      text: "text-reading",
+    },
+    listening: {
+      bg: "bg-listening",
+      light: "bg-pink-50",
+      text: "text-listening",
+    },
   };
-  return color[skill];
+  return colors[skill][variant ?? "bg"];
 }
 
 //Get score color
