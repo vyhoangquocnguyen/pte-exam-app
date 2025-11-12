@@ -1,54 +1,81 @@
-// components/practice/timer.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ClockIcon } from "@heroicons/react/24/outline";
+import { cn } from "@/lib/utils";
 
 interface TimerProps {
-  initialTime: number; // Time in seconds
-  // onTimeUp: () => void; // Future: callback for auto-submit
+  initialTime: number; // seconds
+  onTimeUp?: () => void;
+  isRunning?: boolean;
+  showIcon?: boolean;
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "warning" | "danger";
 }
 
-// Helper to format seconds into MM:SS
-const formatTime = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60)
-    .toString()
-    .padStart(2, "0");
-  const secs = (seconds % 60).toString().padStart(2, "0");
-  return `${mins}:${secs}`;
-};
-
-export default function Timer({ initialTime }: TimerProps) {
-  const [time, setTime] = useState(initialTime);
+export default function Timer({
+  initialTime,
+  onTimeUp,
+  isRunning = true,
+  showIcon = true,
+  size = "md",
+  variant = "default",
+}: TimerProps) {
+  const [timeLeft, setTimeLeft] = useState(initialTime);
 
   useEffect(() => {
-    // Only run the timer if time is greater than 0
-    if (time <= 0) return;
+    setTimeLeft(initialTime);
+  }, [initialTime]);
 
-    const timerInterval = setInterval(() => {
-      setTime((prevTime) => {
-        const newTime = prevTime - 1;
-        if (newTime <= 0) {
-          // Future: onTimeUp();
-          clearInterval(timerInterval);
+  useEffect(() => {
+    if (!isRunning || timeLeft <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          onTimeUp?.();
           return 0;
         }
-        return newTime;
+        return prev - 1;
       });
     }, 1000);
 
-    // Cleanup function
-    return () => clearInterval(timerInterval);
-  }, [time, initialTime]);
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft, onTimeUp]);
 
-  const isCritical = time < 10;
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  const formattedTime = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
+  // Auto-determine variant based on time
+  const currentVariant =
+    variant === "default" ? (timeLeft <= 10 ? "danger" : timeLeft <= 30 ? "warning" : "default") : variant;
+
+  const sizeClasses = {
+    sm: "text-lg",
+    md: "text-2xl",
+    lg: "text-4xl",
+  };
+
+  const variantClasses = {
+    default: "text-gray-900",
+    warning: "text-yellow-600",
+    danger: "text-red-600 animate-pulse",
+  };
+
+  const iconSizes = {
+    sm: "w-4 h-4",
+    md: "w-5 h-5",
+    lg: "w-6 h-6",
+  };
 
   return (
-    <div
-      className={`flex items-center gap-2 rounded-full px-4 py-1 text-sm font-semibold 
-        ${isCritical ? "bg-red-500 text-white animate-pulse" : "bg-primary text-primary-foreground"}`}>
-      <Clock className="h-4 w-4" />
-      Time Left: {formatTime(time)}
+    <div className="flex items-center gap-2">
+      {showIcon && <ClockIcon className={cn(iconSizes[size], variantClasses[currentVariant])} />}
+      <span className={cn("font-display font-bold tabular-nums", sizeClasses[size], variantClasses[currentVariant])}>
+        {formattedTime}
+      </span>
     </div>
   );
 }

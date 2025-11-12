@@ -1,91 +1,194 @@
 "use client";
 
-import React from "react";
-import { Card, CardContent } from "../ui/card";
+import { MicrophoneIcon, StopIcon, PlayIcon, PauseIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { cn } from "@/lib/utils";
 import { useAudioRecorder } from "@/app/hooks/use-audio-recorder";
-import { Button } from "../ui/button";
-import AudioPlayer from "./audio-player";
-import { Mic, Redo, StopCircle } from "lucide-react";
+import { useAudioPlayer } from "@/app/hooks/use-audio-player";
+import { useMemo } from "react";
+interface AudioRecorderProps {
+  maxDuration?: number | null; // seconds (null = unlimited)
+  onRecordingComplete?: (blob: Blob, duration: number) => void;
+  autoStart?: boolean;
+}
 
-const formatTime = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60)
-    .toString()
-    .padStart(2, "0");
-  const sec = Math.floor(seconds % 60)
-    .toString()
-    .padStart(2, "0");
-  return `${mins}:${sec}`;
-};
-
-const AudioRecorder = () => {
+export default function AudioRecorder({
+  maxDuration = null,
+  onRecordingComplete,
+  autoStart = false,
+}: AudioRecorderProps) {
   const {
     isRecording,
-    recordingUrl,
+    isPaused,
     recordingTime,
-    permissionGranted,
-    error,
+    audioBlob,
+    audioUrl,
     startRecording,
     stopRecording,
-    clearRecording,
-    getMicrophonePermission,
-  } = useAudioRecorder();
+    pauseRecording,
+    resumeRecording,
+    formatTime,
+    deleteRecording,
+  } = useAudioRecorder({ maxDuration, onRecordingComplete, autoStart });
 
-  if (error) {
-    return (
-      <p className="text-red-500 p-4">
-        {" "}
-        Error: {error}. Please ensure your microphone is connected and access is granted
-      </p>
-    );
-  }
+  // Playback control (after recoding)
+  const {
+    isPlaying,
+    togglePlay,
+    progress,
+    currentTime,
+    duration,
+    formatTime: formatPlaybackTime,
+  } = useAudioPlayer({
+    src: audioUrl || "",
+    maxPlays: 1,
+    onEnded: () => console.log("Playback ended"),
+  });
 
-  if (!permissionGranted) {
-    return <Button onClick={getMicrophonePermission}>Click to Enable Microphone</Button>;
-  }
+  const bars = useMemo(() => {
+    return Array.from({ length: 40 }, () => Math.random() * 70 + 10);
+  }, []);
+
+  const recordingProgress = maxDuration ? (recordingTime / maxDuration) * 100 : 0;
 
   return (
-    <Card>
-      <CardContent>
-        {/* Playback Area: shown when recording is stopped and a URL exists */}
-        {recordingUrl ? (
-          <div className="w-full">
-            <h3 className="text-lg font-semibold mb-2">Your Recording:</h3>
-            <AudioPlayer audioUrl={recordingUrl} onClear={clearRecording} />
+    <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
+      {/* Recording Visualizer */}
+      <div
+        className={cn(
+          "h-24 mb-6 rounded-xl flex items-center justify-center relative overflow-hidden",
+          isRecording && !isPaused ? "bg-gradient-to-r from-red-50 to-pink-50" : "bg-gray-50"
+        )}>
+        {isRecording && !isPaused ? (
+          <div className="flex items-end justify-center gap-1 h-full py-4">
+            {bars.map((height, i) => (
+              <div
+                key={i}
+                className="w-1 bg-red-500 rounded-full animate-pulse"
+                style={{
+                  height: `${height}%`,
+                  animationDelay: `${i * 50}ms`,
+                }}
+              />
+            ))}
+          </div>
+        ) : audioUrl ? (
+          <div className="flex items-center gap-4 w-full px-4">
+            <button
+              onClick={togglePlay}
+              className="w-10 h-10 rounded-full bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center transition-all">
+              {isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5 ml-0.5" />}
+            </button>
+            <div className="flex-1">
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-brand-500 transition-all" style={{ width: `${progress}%` }} />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {formatPlaybackTime(Math.floor(currentTime))} / {formatPlaybackTime(duration)}
+              </p>
+            </div>
           </div>
         ) : (
-          //   Recording Area: shown when recording is in progress or no recording exists
-
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative">
-              {/* Recording Indicator */}
-              <div
-                className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out
-                                ${isRecording ? "bg-red-500 animate-pulse" : "bg-primary/10 border-2 border-primary"}`}>
-                {isRecording ? <StopCircle className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-primary" />}
-              </div>
-            </div>
-
-            <div className="text-xl font-mono">{formatTime(recordingTime)}</div>
-            <div className="flex gap-4">
-              {isRecording ? (
-                <Button onClick={stopRecording} variant="destructive" className="w-32">
-                  <StopCircle className="mr-2 h-4 w-4" /> Stop
-                </Button>
-              ) : (
-                <Button onClick={startRecording} disabled={isRecording} className="w-32">
-                  <Mic className="mr-2 h-4 w-4" /> Start
-                </Button>
-              )}
-
-              <Button onClick={clearRecording} variant="outline" disabled={isRecording || !recordingUrl}>
-                <Redo className="mr-2 h-4 w-4" /> Redo
-              </Button>
-            </div>
+          <div className="text-center">
+            <MicrophoneIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">Ready to record</p>
           </div>
         )}
-      </CardContent>
-    </Card>
-  );
-};
+      </div>
 
-export default AudioRecorder;
+      {/* Hidden audio element for playback
+      {audioUrl && (
+        <audio
+          ref={audioRef}
+          src={audioUrl}
+          onTimeUpdate={(e) => setPlaybackTime(e.currentTarget.currentTime)}
+          onEnded={() => {
+            setIsPlaying(false);
+            setPlaybackTime(0);
+          }}
+        />
+      )} */}
+
+      {/* Controls */}
+      <div className="flex flex-col gap-4">
+        {/* Timer and Progress */}
+        {isRecording && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-600">Recording...</span>
+              <span className={cn("text-xl font-display font-bold", isPaused ? "text-yellow-600" : "text-red-600")}>
+                {formatTime(recordingTime)}
+              </span>
+            </div>
+            {maxDuration && (
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-red-500 transition-all" style={{ width: `${recordingProgress}%` }} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-center gap-3">
+          {!isRecording && !audioBlob && (
+            <button
+              onClick={startRecording}
+              className="flex items-center gap-2 px-8 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition-all">
+              <MicrophoneIcon className="w-6 h-6" />
+              Start Recording
+            </button>
+          )}
+
+          {/* Pause/Resume/Stop */}
+          {isRecording && (
+            <>
+              {!isPaused ? (
+                <button
+                  onClick={pauseRecording}
+                  className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl font-semibold transition-all">
+                  Pause
+                </button>
+              ) : (
+                <button
+                  onClick={resumeRecording}
+                  className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-semibold transition-all">
+                  Resume
+                </button>
+              )}
+
+              <button
+                onClick={stopRecording}
+                className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition-all">
+                <StopIcon className="w-5 h-5" />
+                Stop
+              </button>
+            </>
+          )}
+
+          {/* After recording is done */}
+          {audioBlob && (
+            <>
+              <button
+                onClick={startRecording}
+                className="flex items-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-semibold transition-all">
+                <MicrophoneIcon className="w-5 h-5" />
+                Record Again
+              </button>
+
+              <button
+                onClick={deleteRecording}
+                className="flex items-center gap-2 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-semibold transition-all">
+                <TrashIcon className="w-5 h-5" />
+                Delete
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Info Text */}
+        {maxDuration && !isRecording && !audioBlob && (
+          <p className="text-sm text-gray-500 text-center">Maximum recording time: {formatTime(maxDuration)}</p>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -17,7 +17,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       {/* Main Content */}
       <div className="flex flex-1 relative min-h-0 ">
         <SideBar />
-        <main className="flex-1 overflow-y-auto min-w-0 py-6 px-4 sm:px-6 lg:ml-64 scrollbar-hidden">{children}</main>
+        <main className="flex-1 overflow-y-auto min-w-0 py-6 lg:pt-16 px-4 sm:px-6 lg:ml-64 scrollbar-hidden">{children}</main>
       </div>
     </div>
   );
