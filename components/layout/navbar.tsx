@@ -11,7 +11,16 @@ import {
   UserCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-const Navbar = () => {
+
+interface NavbarProps {
+  user: {
+    name: string;
+    score: number;
+    initials: string;
+  };
+}
+
+const Navbar = ({ user }: NavbarProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigation = [
@@ -20,6 +29,7 @@ const Navbar = () => {
     { name: "Mock Tests", href: "/mock-test", icon: AcademicCapIcon },
     { name: "Progress", href: "/progress", icon: ChartBarIcon },
   ];
+
   return (
     <nav className="fixed w-full h-16 z-50 backdrop-blur-md bg-white/80 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,11 +57,11 @@ const Navbar = () => {
           {/* User Menu */}
           <div className="hidden md:flex items-center gap-4">
             <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-brand-50">
-              <span className="text-sm font-semibold text-brand-700">Score : 72</span>
+              <span className="text-sm font-semibold text-brand-700">Score: {user.score}</span>
             </div>
             <button className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
-                <span className="text-white text-sm font-semibold">JD</span>
+                <span className="text-white text-sm font-semibold">{user.initials}</span>
               </div>
             </button>
           </div>
@@ -85,8 +95,8 @@ const Navbar = () => {
               <div className="flex items-center gap-3 px-4 py-3">
                 <UserCircleIcon className="w-8 h-8 text-gray-400" />
               </div>
-              <p className="font-semibold text-gray-900">John Doe</p>
-              <p className="text-sm text-gray-500">Score: 72</p>
+              <p className="font-semibold text-gray-900">{user.name}</p>
+              <p className="text-sm text-gray-500">Score: {user.score}</p>
             </div>
           </div>
         </div>
@@ -95,4 +105,13 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+const NavbarWithDummyData = () => {
+  const dummyUser = {
+    name: "John Doe",
+    score: 72,
+    initials: "JD",
+  };
+  return <Navbar user={dummyUser} />;
+};
+
+export default NavbarWithDummyData;

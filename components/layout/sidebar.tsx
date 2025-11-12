@@ -69,7 +69,8 @@ export default function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group",
                   active ? "bg-brand-50 text-brand-700" : "text-gray-700 hover:bg-gray-100"
-                )}>
+                )}
+                onClick={isPractice ? handleToggleDropdown : undefined}>
                 <Icon
                   className={cn(
                     "w-5 h-5 transition-colors",
@@ -79,7 +80,10 @@ export default function Sidebar() {
                 <span>{name}</span>
                 {isPractice && (
                   <button
-                    onClick={handleToggleDropdown}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleDropdown(e);
+                    }}
                     className="ml-auto p-1 rounded-md hover:bg-gray-200"
                     aria-label="Toggle Practice Menu">
                     {openDropdown ? (
@@ -89,8 +93,7 @@ export default function Sidebar() {
                     )}
                   </button>
                 )}
-              </Link>
-
+              </Link>{" "}
               {/* Dropdown (only visible when open) */}
               {isPractice && openDropdown && (
                 <div className="ml-6 mt-1 space-y-1 border-l-2 border-brand-100 pl-3">

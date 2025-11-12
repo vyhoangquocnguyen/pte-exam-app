@@ -18,14 +18,14 @@ const ActivityTimeline = ({ activities }: ActivityTimelineProps) => {
         </div>
       ) : (
         <div className="space-y-4">
-          {activities.map(({type, exerciseId, task, score, time}, index) => {
+          {activities.map(({type, exerciseId, task, score, time}) => {
             const config = skillConfig[type];
             const Icon = config.icon;
             const scoreColor = getScoreColor(score);
 
             return (
               <div
-                key={`${exerciseId}-${index}`}
+                key={exerciseId}
                 className="flex flex-col md:flex-row items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors">
                 <div className="flex items-center gap-4 md:flex-1">
                   <div

@@ -27,7 +27,7 @@ export function formatTime(seconds: number): string {
 }
 
 //Get skill color classes
-export function getSkillColer(skill: SkillType, variant?: "bg" | "light" | "text"): string {
+export function getSkillColor(skill: SkillType, variant?: "bg" | "light" | "text"): string {
   const colors: Record<SkillType, { bg: string; light: string; text: string }> = {
     speaking: {
       bg: "bg-speaking",
@@ -57,6 +57,6 @@ export function getSkillColer(skill: SkillType, variant?: "bg" | "light" | "text
 export function getScoreColor(score: number): string {
   if (score >= 79) return "text-green-600";
   if (score >= 65) return "text-yellow-600";
-  if (score >= 50) return " text-orange-600";
+  if (score >= 50) return "text-orange-600";
   return "text-red-600";
 }

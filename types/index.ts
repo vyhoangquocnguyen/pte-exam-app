@@ -24,7 +24,7 @@ export interface Exercise {
   subType: string;
   difficulty: Difficulty;
   title: string;
-  content: any;
+  content: string;
   timeLimit?: number;
 }
 

@@ -6,7 +6,7 @@ import {
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 
-import {HeroStatsProps} from "@/types";
+import { HeroStatsProps } from "@/types";
 
 const HeroStats = ({ stats }: { stats: HeroStatsProps }) => {
   const statCards = [
@@ -46,7 +46,8 @@ const HeroStats = ({ stats }: { stats: HeroStatsProps }) => {
       icon: ChartBarIcon,
       bgColor: "bg-blue-50",
       iconColor: "text-blue-600",
-      trend: `${stats.nextGoal - stats.totalScore} points to go`,
+      trend:
+        stats.totalScore >= stats.nextGoal ? "Goal achieved! 🎉" : `${stats.nextGoal - stats.totalScore} points to go`,
       trendColor: "text-gray-500",
       showTrend: false,
     },
