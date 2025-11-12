@@ -78,16 +78,24 @@ export function useExerciseState({
     (questionId: string, answer: any) => {
       const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
 
-      setAnswers((prev) => ({
-        ...prev,
-        [questionId]: {
-          questionId,
-          answer,
-          timeSpent,
-          isAnswered: true,
-          submittedAt: new Date(),
-        },
-      }));
+      console.log("💾 submitAnswer called for:", questionId);
+      console.log("⏱️ Time spent:", timeSpent);
+      console.log("📦 Answer data:", answer);
+
+      setAnswers((prev) => {
+        const newAnswers = {
+          ...prev,
+          [questionId]: {
+            questionId,
+            answer,
+            timeSpent,
+            isAnswered: true,
+            submittedAt: new Date(),
+          },
+        };
+        console.log("📋 Updated answers:", Object.keys(newAnswers));
+        return newAnswers;
+      });
     },
     [questionStartTime]
   );
@@ -167,6 +175,23 @@ export function useExerciseState({
     return Object.values(answers).reduce((sum, answer) => sum + answer.timeSpent, 0);
   }, [answers]);
 
+  // Reset current question only - needs questionId parameter
+  const resetCurrentQuestion = useCallback((questionId?: string) => {
+    console.log("🗑️ resetCurrentQuestion called for:", JSON.stringify(questionId));
+    console.log("📋 Current answers before reset:", JSON.stringify(Object.keys(answers)));
+    
+    if (questionId) {
+      setAnswers((prev) => {
+        const newAnswers = { ...prev };
+        delete newAnswers[questionId];
+        console.log("📋 Answers after deletion:", JSON.stringify(Object.keys(newAnswers)));
+        return newAnswers;
+      });
+    }
+    setQuestionStartTime(Date.now());
+    console.log("⏰ Question start time reset");
+  }, [answers]);
+
   // Reset exercise
   const reset = useCallback(() => {
     setCurrentQuestionIndex(0);
@@ -191,6 +216,7 @@ export function useExerciseState({
     goToNext,
     goToPrevious,
     goToQuestion,
+    resetCurrentQuestion,
     reset,
 
     // Helpers

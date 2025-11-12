@@ -5,12 +5,14 @@ import { useState, useRef, useCallback, useEffect } from "react";
 interface UseAudioRecorderOptions {
   maxDuration?: number | null; // seconds
   onRecordingComplete?: (blob: Blob, duration: number) => void;
+  onAutoStop?: () => void; // Called when auto-stopped due to max duration
   autoStart?: boolean;
 }
 
 export function useAudioRecorder({
   maxDuration = null,
   onRecordingComplete,
+  onAutoStop,
   autoStart = false,
 }: UseAudioRecorderOptions = {}) {
   const [isRecording, setIsRecording] = useState(false);
@@ -19,6 +21,7 @@ export function useAudioRecorder({
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isStopping, setIsStopping] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -71,10 +74,13 @@ export function useAudioRecorder({
       };
 
       mediaRecorder.onstop = () => {
+        console.log("🎙️ MediaRecorder stopped, creating blob...");
         const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         const url = URL.createObjectURL(blob);
         setAudioBlob(blob);
         setAudioUrl(url);
+        setIsStopping(false); // Reset stopping flag
+        console.log("📤 Calling onRecordingComplete with blob size:", blob.size, "duration:", recordingTime);
         onRecordingComplete?.(blob, recordingTime);
 
         // Cleanup stream
@@ -96,7 +102,23 @@ export function useAudioRecorder({
 
           // Auto-stop if max duration reached
           if (maxDuration && newTime >= maxDuration) {
-            stopRecording();
+            console.log("🛑 Max duration reached, stopping recording...");
+            // Clear timer first to prevent multiple calls
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
+            
+            // Stop the MediaRecorder directly
+            if (mediaRecorderRef.current) {
+              console.log("🎙️ Directly stopping MediaRecorder from timer...");
+              setIsStopping(true);
+              mediaRecorderRef.current.stop();
+              setIsRecording(false);
+              setIsPaused(false);
+              onAutoStop?.();
+            }
+            
             return maxDuration;
           }
 
@@ -108,7 +130,7 @@ export function useAudioRecorder({
       setError(errorMessage);
       console.error("Error accessing microphone:", err);
     }
-  }, [maxDuration, onRecordingComplete, recordingTime]);
+  }, [maxDuration, onRecordingComplete, onAutoStop, recordingTime]);
 
   // Pause recording
   const pauseRecording = useCallback(() => {
@@ -144,7 +166,16 @@ export function useAudioRecorder({
 
   // Stop recording
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
+    console.log("🛑 stopRecording called, isRecording:", isRecording, "isStopping:", isStopping);
+    
+    if (isStopping) {
+      console.log("⚠️ Already stopping, ignoring duplicate call");
+      return;
+    }
+
+    if (mediaRecorderRef.current) {
+      console.log("🎙️ Stopping MediaRecorder...");
+      setIsStopping(true);
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       setIsPaused(false);
@@ -152,8 +183,10 @@ export function useAudioRecorder({
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
+    } else {
+      console.log("⚠️ Cannot stop - no MediaRecorder");
     }
-  }, [isRecording]);
+  }, [isRecording, isStopping]);
 
   // Delete recording
   const deleteRecording = useCallback(() => {
@@ -174,6 +207,7 @@ export function useAudioRecorder({
     setAudioBlob(null);
     setAudioUrl(null);
     setError(null);
+    setIsStopping(false);
     audioChunksRef.current = [];
   }, [cleanup]);
 

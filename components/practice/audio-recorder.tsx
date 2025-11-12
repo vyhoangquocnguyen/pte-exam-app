@@ -2,19 +2,23 @@
 
 import { MicrophoneIcon, StopIcon, PlayIcon, PauseIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
-import { useAudioRecorder } from "@/app/hooks/use-audio-recorder";
-import { useAudioPlayer } from "@/app/hooks/use-audio-player";
-import { useMemo } from "react";
+import { useAudioRecorder } from "@/hooks/use-audio-recorder";
+import { useAudioPlayer } from "@/hooks/use-audio-player";
+import { useMemo, useEffect } from "react";
 interface AudioRecorderProps {
   maxDuration?: number | null; // seconds (null = unlimited)
   onRecordingComplete?: (blob: Blob, duration: number) => void;
+  onAutoStop?: () => void;
   autoStart?: boolean;
+  forceReset?: boolean; // Trigger reset when true
 }
 
 export default function AudioRecorder({
   maxDuration = null,
   onRecordingComplete,
+  onAutoStop,
   autoStart = false,
+  forceReset = false,
 }: AudioRecorderProps) {
   const {
     isRecording,
@@ -28,7 +32,8 @@ export default function AudioRecorder({
     resumeRecording,
     formatTime,
     deleteRecording,
-  } = useAudioRecorder({ maxDuration, onRecordingComplete, autoStart });
+    reset,
+  } = useAudioRecorder({ maxDuration, onRecordingComplete, onAutoStop, autoStart });
 
   // Playback control (after recoding)
   const {
@@ -47,6 +52,13 @@ export default function AudioRecorder({
   const bars = useMemo(() => {
     return Array.from({ length: 40 }, () => Math.random() * 70 + 10);
   }, []);
+
+  // Reset when forceReset changes
+  useEffect(() => {
+    if (forceReset) {
+      reset();
+    }
+  }, [forceReset, reset]);
 
   const recordingProgress = maxDuration ? (recordingTime / maxDuration) * 100 : 0;
 

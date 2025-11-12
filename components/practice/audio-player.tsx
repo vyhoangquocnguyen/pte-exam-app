@@ -2,8 +2,8 @@
 
 import { PlayIcon, PauseIcon, ArrowPathIcon, SpeakerWaveIcon } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
-import { useAudioPlayer } from "@/app/hooks/use-audio-player";
-import { useAudioRecorder } from "@/app/hooks/use-audio-recorder";
+import { useAudioPlayer } from "@/hooks/use-audio-player";
+import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 
 interface AudioPlayerProps {
   src: string;
