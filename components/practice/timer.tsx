@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { ClockIcon } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
+import { useTimer } from "@/hooks/use-timer";
 
 interface TimerProps {
   initialTime: number; // seconds
@@ -21,32 +21,11 @@ export default function Timer({
   size = "md",
   variant = "default",
 }: TimerProps) {
-  const [timeLeft, setTimeLeft] = useState(initialTime);
-
-  useEffect(() => {
-    setTimeLeft(initialTime);
-  }, [initialTime]);
-
-  useEffect(() => {
-    if (!isRunning || timeLeft <= 0) return;
-
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          onTimeUp?.();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft, onTimeUp]);
-
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  const formattedTime = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  const { timeLeft, formattedTime } = useTimer({
+    initialTime,
+    isRunning,
+    onTimeUp,
+  });
 
   // Auto-determine variant based on time
   const currentVariant =

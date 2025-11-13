@@ -3,6 +3,7 @@
 ## Tech Stack Overview
 
 ### Frontend Framework
+
 - **Next.js 16** (App Router)
   - Server Components for static content
   - Client Components for interactive features
@@ -10,17 +11,20 @@
   - API Routes for backend logic
 
 ### Styling & UI
+
 - **Tailwind CSS** - Utility-first styling
 - **shadcn/ui** - Accessible component primitives
 - **Framer Motion** - Purposeful animations
 - **Heroicons** - Icon system
 
 ### State Management
+
 - **React Context** - User session, theme, global settings
 - **React Server Components** - Server-side data fetching
 - **URL State** - Exercise progress, filters
 
 ### Data & Backend
+
 - **Prisma** - Type-safe database ORM
 - **PostgreSQL** - Primary database
 - **Vercel Blob/S3** - Audio file storage
@@ -132,7 +136,7 @@ model User {
   targetScore   Int       @default(65)
   studyStreak   Int       @default(0)
   createdAt     DateTime  @default(now())
-  
+
   sessions      Session[]
   progress      Progress[]
   testAttempts  TestAttempt[]
@@ -155,7 +159,7 @@ model Exercise {
   rubric      Json         // Scoring criteria
   timeLimit   Int?         // Seconds
   createdAt   DateTime     @default(now())
-  
+
   attempts    Attempt[]
 }
 
@@ -170,7 +174,7 @@ model Attempt {
   feedback    Json      // AI-generated feedback
   duration    Int       // Time taken in seconds
   createdAt   DateTime  @default(now())
-  
+
   exercise    Exercise  @relation(fields: [exerciseId], references: [id])
   user        User      @relation(fields: [userId], references: [id])
 }
@@ -184,7 +188,7 @@ model TestAttempt {
   breakdown   Json?     // Scores by section
   startedAt   DateTime  @default(now())
   completedAt DateTime?
-  
+
   user        User      @relation(fields: [userId], references: [id])
   sections    TestSection[]
 }
@@ -195,7 +199,7 @@ model TestSection {
   sectionType   ExerciseType
   score         Int?
   timeSpent     Int         // Seconds
-  
+
   testAttempt   TestAttempt @relation(fields: [testAttemptId], references: [id])
 }
 
@@ -209,9 +213,9 @@ model Progress {
   avgScore    Float        @default(0)
   totalTests  Int          @default(0)
   updatedAt   DateTime     @updatedAt
-  
+
   user        User         @relation(fields: [userId], references: [id])
-  
+
   @@unique([userId, skillType])
 }
 
@@ -241,6 +245,7 @@ enum TestStatus {
 ## Core Feature Modules
 
 ### 1. Authentication System
+
 **Files**: `app/(auth)/*`, `lib/auth.ts`
 
 - Email/password authentication
@@ -253,29 +258,34 @@ enum TestStatus {
 ---
 
 ### 2. Dashboard Module
+
 **Files**: `app/(dashboard)/dashboard/*`, `components/dashboard/*`
 
 **Features**:
+
 - Hero stats (Server Component)
 - Skill progress cards with progress rings
 - Recent activity timeline
 - Quick action buttons
 
 **Data Flow**:
+
 ```
-Server Component → Prisma query → 
-  Aggregate user stats → 
+Server Component → Prisma query →
+  Aggregate user stats →
     Render hero stats
 ```
 
 ---
 
 ### 3. Practice Module
+
 **Files**: `app/(dashboard)/practice/*`, `components/practice/*`
 
 **Exercise Types**:
 
 #### Speaking
+
 - Read Aloud (audio recording + transcription)
 - Repeat Sentence
 - Describe Image
@@ -283,26 +293,28 @@ Server Component → Prisma query →
 - Answer Short Question
 
 #### Writing
+
 - Summarize Written Text (word counter)
 - Essay Writing (with auto-save)
 
 #### Reading
+
 - MCQ Single/Multiple Answer
 - Re-order Paragraphs (drag & drop)
 - Fill in the Blanks
 
 #### Listening
+
 - Audio-based MCQs
 - Fill in the Blanks (audio)
 - Highlight Correct Summary
 
 **Component Structure**:
+
 ```tsx
 <ExerciseContainer>
   <QuestionHeader timer={timer} questionNum={num} />
-  <QuestionCard content={exercise.content}>
-    {renderQuestionType(exercise.subType)}
-  </QuestionCard>
+  <QuestionCard content={exercise.content}>{renderQuestionType(exercise.subType)}</QuestionCard>
   <AnswerArea>
     <MCQOptions /> | <AudioRecorder /> | <EssayEditor />
   </AnswerArea>
@@ -313,9 +325,11 @@ Server Component → Prisma query →
 ---
 
 ### 4. AI Feedback System
+
 **Files**: `lib/ai/*`, `components/feedback/*`
 
 **Flow**:
+
 1. User submits answer
 2. Server Action receives submission
 3. Format prompt for OpenAI/Claude API
@@ -325,6 +339,7 @@ Server Component → Prisma query →
 7. Return feedback to client
 
 **Feedback Structure**:
+
 ```typescript
 interface Feedback {
   overallScore: number; // 0-90
@@ -342,6 +357,7 @@ interface Feedback {
 ```
 
 **API Integration**:
+
 - Speaking: Whisper API → transcribe → GPT-4 → evaluate
 - Writing: GPT-4 → analyze essay → scoring
 - Reading/Listening: Rule-based scoring
@@ -349,9 +365,11 @@ interface Feedback {
 ---
 
 ### 5. Mock Test Module
+
 **Files**: `app/(dashboard)/mock-tests/*`
 
 **Features**:
+
 - Full-length timed tests (3 hours)
 - Section-by-section progression
 - Persistent timer across refreshes
@@ -359,6 +377,7 @@ interface Feedback {
 - Comprehensive results dashboard
 
 **State Management**:
+
 ```typescript
 // Store in database + client state
 interface TestSession {
@@ -374,18 +393,21 @@ interface TestSession {
 ---
 
 ### 6. Progress Tracking
+
 **Files**: `app/(dashboard)/progress/*`
 
 **Visualizations**:
+
 - Score history line charts (Recharts)
 - Skill breakdown radar chart
 - Streak calendar (like GitHub contributions)
 - Time spent per skill (bar chart)
 
 **Data Aggregation**:
+
 ```sql
 -- Example Prisma query
-SELECT 
+SELECT
   skillType,
   AVG(score) as avgScore,
   COUNT(*) as attempts,
@@ -400,22 +422,27 @@ GROUP BY skillType
 ## API Routes Design
 
 ### `/api/exercises`
+
 - `GET /api/exercises?type=SPEAKING&difficulty=MEDIUM` - Fetch exercises
 - `POST /api/exercises` - Admin: Create exercise
 
 ### `/api/attempts`
+
 - `POST /api/attempts` - Submit answer + generate feedback
 - `GET /api/attempts?userId=X` - Get user attempts
 
 ### `/api/feedback`
+
 - `POST /api/feedback/generate` - Trigger AI feedback generation
 - `GET /api/feedback/:attemptId` - Retrieve feedback
 
 ### `/api/audio`
+
 - `POST /api/audio/upload` - Upload audio recording
 - `POST /api/audio/transcribe` - Transcribe audio
 
 ### `/api/tests`
+
 - `POST /api/tests/start` - Initialize mock test
 - `PUT /api/tests/:id` - Update progress
 - `POST /api/tests/:id/submit` - Complete test
@@ -425,34 +452,38 @@ GROUP BY skillType
 ## Performance Optimizations
 
 ### Server Components Strategy
+
 - Dashboard stats: Server Component
 - Static exercise content: Server Component
 - Interactive elements: Client Component with `'use client'`
 
 ### Caching
+
 ```typescript
 // Example: Cache exercise content
 export const revalidate = 3600; // 1 hour
 
 export default async function ExercisePage() {
   const exercises = await prisma.exercise.findMany({
-    where: { type: 'SPEAKING' },
-    cache: 'force-cache'
+    where: { type: "SPEAKING" },
+    cache: "force-cache",
   });
 }
 ```
 
 ### Audio Optimization
+
 - Store audio in Vercel Blob/S3
 - Generate pre-signed URLs
 - Stream audio instead of full download
 
 ### Code Splitting
+
 ```typescript
 // Lazy load heavy components
-const AudioRecorder = dynamic(() => import('@/components/practice/audio-recorder'), {
+const AudioRecorder = dynamic(() => import("@/components/practice/audio-recorder"), {
   loading: () => <Skeleton />,
-  ssr: false
+  ssr: false,
 });
 ```
 
@@ -485,6 +516,7 @@ Next.js App (Vercel Serverless)
 ```
 
 **Environment Variables**:
+
 ```bash
 DATABASE_URL=
 NEXTAUTH_SECRET=
@@ -498,30 +530,35 @@ BLOB_READ_WRITE_TOKEN=
 ## Development Roadmap
 
 ### Phase 1: Foundation (Week 1-2)
+
 - [ ] Set up Next.js 16 + Tailwind + shadcn/ui
 - [ ] Database schema + Prisma setup
 - [ ] Authentication system
 - [ ] Basic dashboard layout
 
 ### Phase 2: Core Features (Week 3-5)
+
 - [ ] Practice module (all question types)
 - [ ] Audio recording + playback
 - [ ] Timer system
 - [ ] Progress tracking
 
 ### Phase 3: AI Integration (Week 6-7)
+
 - [ ] OpenAI integration for writing feedback
 - [ ] Speech recognition for speaking tasks
 - [ ] Score calculation algorithms
 - [ ] Feedback display UI
 
 ### Phase 4: Mock Tests (Week 8-9)
+
 - [ ] Full test flow
 - [ ] Section navigation
 - [ ] Results dashboard
 - [ ] Test history
 
 ### Phase 5: Polish (Week 10)
+
 - [ ] Animations + micro-interactions
 - [ ] Mobile optimization
 - [ ] Performance tuning
@@ -531,26 +568,15 @@ BLOB_READ_WRITE_TOKEN=
 
 ## Key Technical Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| **Framework** | Next.js 16 (App Router) | Server Components, file-based routing, optimal performance |
-| **Database** | PostgreSQL + Prisma | Relational data, type safety, migrations |
-| **Styling** | Tailwind + shadcn/ui | Rapid development, consistent design system |
-| **AI Provider** | OpenAI GPT-4 | Best-in-class language understanding |
-| **Speech-to-Text** | Deepgram/Whisper | Accurate transcription for speaking tasks |
-| **Hosting** | Vercel | Seamless Next.js integration, edge network |
-| **State** | React Context + URL | Simple, fits use case (avoid Redux complexity) |
-| **Forms** | React Hook Form + Zod | Type-safe validation, great DX |
+| Decision           | Choice                  | Rationale                                                  |
+| ------------------ | ----------------------- | ---------------------------------------------------------- |
+| **Framework**      | Next.js 16 (App Router) | Server Components, file-based routing, optimal performance |
+| **Database**       | PostgreSQL + Prisma     | Relational data, type safety, migrations                   |
+| **Styling**        | Tailwind + shadcn/ui    | Rapid development, consistent design system                |
+| **AI Provider**    | OpenAI GPT-4            | Best-in-class language understanding                       |
+| **Speech-to-Text** | Deepgram/Whisper        | Accurate transcription for speaking tasks                  |
+| **Hosting**        | Vercel                  | Seamless Next.js integration, edge network                 |
+| **State**          | React Context + URL     | Simple, fits use case (avoid Redux complexity)             |
+| **Forms**          | React Hook Form + Zod   | Type-safe validation, great DX                             |
 
 ---
-
-## Next Steps
-
-1. **Set up project**: `npx create-next-app@latest pte-platform`
-2. **Install dependencies**: Tailwind, shadcn/ui, Prisma, etc.
-3. **Initialize database**: Create schema, run migrations
-4. **Build component library**: Start with shadcn/ui primitives
-5. **Implement auth**: Set up login/register flows
-6. **Create first exercise**: Build one complete question type end-to-end
-
-This architecture provides a solid foundation for scaling while maintaining code quality and developer experience. Ready to start building? 🚀

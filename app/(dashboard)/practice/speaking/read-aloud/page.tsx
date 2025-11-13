@@ -1,19 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { useExerciseState } from "@/hooks/use-exercise-state";
-import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 import ExerciseContainer from "@/components/practice/exercise-container";
 import QuestionHeader from "@/components/practice/question-header";
 import AudioRecorder from "@/components/practice/audio-recorder";
 import ProgressIndicator from "@/components/practice/progress-indicator";
 import NavigationButtons from "@/components/practice/navigation-buttons";
 import RestartButton from "@/components/practice/restart-button";
+import PhaseTimer from "@/components/practice/phase-timer";
+import CompletionScreen from "@/components/practice/completion-screen";
 import { mockReadAloudExercises } from "@/lib/mock-data/exercises";
+import { usePreparationTimer } from "@/hooks/use-preparation-timer";
 
 export default function ReadAloudPage() {
   const exercises = mockReadAloudExercises;
-  const [resetKey, setResetKey] = useState(0);
 
   const {
     currentQuestion,
@@ -40,27 +40,23 @@ export default function ReadAloudPage() {
   const isAnswered = isQuestionAnswered(questionId);
 
   const handleRecordingComplete = (blob: Blob, duration: number) => {
-    console.log("🎤 Recording completed for question:", questionId, "Duration:", duration);
-    console.log("📝 Current exercise text:", currentExercise.content.text);
-    console.log("📊 Submitting answer...");
     submitAnswer(questionId, {
       audioBlob: blob,
       duration,
       text: currentExercise.content.text,
     });
-    console.log("✅ Answer submitted");
   };
 
-  const handleAutoStop = () => {
-    console.log("⏰ Recording auto-stopped due to time limit - submitting answer");
-    // You could add a toast notification here
-  };
+  const timer = usePreparationTimer({
+    preparationTime: currentExercise.content.preparationTime,
+    recordingTime: currentExercise.content.recordingTime,
+    autoStart: true, // Starts the preparation timer automatically
+  });
 
   const handleRestartQuestion = () => {
-    console.log("🔄 Restarting question:", questionId);
     resetCurrentQuestion(questionId);
-    setResetKey(prev => prev + 1); // Force AudioRecorder to reset
-    console.log("🔑 Reset key updated to:", resetKey + 1);
+    timer.reset();
+    timer.start(); // Restart the preparation timer
   };
 
   return (
@@ -82,7 +78,7 @@ export default function ReadAloudPage() {
         title="Read Aloud"
         instructions={`Look at the text below. You have ${currentExercise.content.preparationTime} seconds to read it silently, then record yourself reading it aloud.`}
         timeLimit={currentExercise.timeLimit}
-        showTimer={false} // We'll use the recorder's timer
+        showTimer={false} // The PhaseTimer will handle the display
       />
 
       {/* Main Content */}
@@ -94,38 +90,38 @@ export default function ReadAloudPage() {
 
         {/* Recording Interface */}
         {!isAnswered ? (
-          <div>
-            <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-900">
-                <span className="font-semibold">💡 Tip:</span> Read the passage silently first. When ready, click the
-                microphone button to start recording. Speak clearly at a natural pace.
-              </p>
-            </div>
+          <>
+            <PhaseTimer
+              isPreparation={timer.isPreparation}
+              isRecording={timer.isRecording}
+              isCompleted={timer.isCompleted}
+              isAnswered={isAnswered}
+              timeLeft={timer.timeLeft}
+              formatTime={timer.formatTime}
+            />
+            {timer.isPreparation && (
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-900">
+                  <span className="font-semibold">👀 Prepare:</span> Read the passage silently. The recording will begin
+                  automatically when the timer ends.
+                </p>
+              </div>
+            )}
 
-            <AudioRecorder
-              key={resetKey}
-              forceReset={resetKey > 0}
-              maxDuration={currentExercise.content.recordingTime}
-              onRecordingComplete={handleRecordingComplete}
-              onAutoStop={handleAutoStop}
-            />
-          </div>
+            {timer.isRecording && (
+              <AudioRecorder
+                autoStart={true}
+                maxDuration={currentExercise.content.recordingTime}
+                onRecordingComplete={handleRecordingComplete}
+              />
+            )}
+          </>
         ) : (
-          <div className="text-center py-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Recording Submitted!</h3>
-            <p className="text-gray-600 mb-4">Your response has been recorded and will be evaluated.</p>
-            
-            <RestartButton 
-              onRestart={handleRestartQuestion}
-              variant="secondary"
-              size="sm"
-            />
-          </div>
+          <CompletionScreen
+            title="Recording Submitted!"
+            description="Your response has been recorded and will be evaluated.">
+            <RestartButton onRestart={handleRestartQuestion} variant="secondary" size="sm" />
+          </CompletionScreen>
         )}
       </div>
 
@@ -135,8 +131,8 @@ export default function ReadAloudPage() {
         onNext={goToNext}
         currentQuestion={currentQuestion}
         totalQuestions={totalQuestions}
-        isAnswered={isAnswered}
-        showSubmit={true}
+        isAnswered={isAnswered || timer.isCompleted}
+        showSubmit={false}
         layout="spread"
       />
     </ExerciseContainer>

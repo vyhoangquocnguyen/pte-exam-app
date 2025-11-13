@@ -1,20 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useExerciseState } from "@/hooks/use-exercise-state";
-import { useAudioPlayer } from "@/hooks/use-audio-player";
-import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 import ExerciseContainer from "@/components/practice/exercise-container";
 import QuestionHeader from "@/components/practice/question-header";
 import AudioPlayer from "@/components/practice/audio-player";
 import AudioRecorder from "@/components/practice/audio-recorder";
 import ProgressIndicator from "@/components/practice/progress-indicator";
 import NavigationButtons from "@/components/practice/navigation-buttons";
+import CompletionScreen from "@/components/practice/completion-screen";
 import { mockRepeatSentenceExercises } from "@/lib/mock-data/exercises";
 
 export default function RepeatSentencePage() {
   const exercises = mockRepeatSentenceExercises;
-  const [hasPlayedAudio, setHasPlayedAudio] = useState(false);
+  const [audioHasFinished, setAudioHasFinished] = useState(false);
 
   const {
     currentQuestion,
@@ -46,15 +45,15 @@ export default function RepeatSentencePage() {
     });
   };
 
-  const handleNext = () => {
-    setHasPlayedAudio(false);
+  const handleNext = useCallback(() => {
+    setAudioHasFinished(false);
     goToNext();
-  };
+  }, [goToNext]);
 
-  const handlePrevious = () => {
-    setHasPlayedAudio(false);
+  const handlePrevious = useCallback(() => {
+    setAudioHasFinished(false);
     goToPrevious();
-  };
+  }, [goToPrevious]);
 
   return (
     <ExerciseContainer backHref="/practice/speaking" backLabel="Back to Speaking">
@@ -82,15 +81,13 @@ export default function RepeatSentencePage() {
           <AudioPlayer
             src={currentExercise.content.audioUrl}
             maxPlays={currentExercise.content.maxPlays}
-            onPlayCountChange={(count) => {
-              if (count === 1) setHasPlayedAudio(true);
-            }}
+            onEnded={() => setAudioHasFinished(true)}
             showWaveform={true}
           />
         </div>
 
         {/* Instructions */}
-        {!hasPlayedAudio && !isAnswered && (
+        {!audioHasFinished && !isAnswered && (
           <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
             <p className="text-sm text-yellow-900">
               <span className="font-semibold">⚠️ Important:</span> You can only play the audio once. Listen carefully
@@ -100,7 +97,7 @@ export default function RepeatSentencePage() {
         )}
 
         {/* Recording Interface */}
-        {hasPlayedAudio && !isAnswered && (
+        {audioHasFinished && !isAnswered && (
           <div>
             <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-900">
@@ -112,26 +109,21 @@ export default function RepeatSentencePage() {
             <AudioRecorder
               maxDuration={currentExercise.content.recordingTime}
               onRecordingComplete={handleRecordingComplete}
-              autoStart={false}
+              autoStart={true}
             />
           </div>
         )}
 
         {/* Completion State */}
         {isAnswered && (
-          <div className="text-center py-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Response Recorded!</h3>
-            <p className="text-gray-600">Your repetition has been submitted for evaluation.</p>
-          </div>
+          <CompletionScreen
+            title="Response Recorded!"
+            description="Your repetition has been submitted for evaluation."
+          />
         )}
 
         {/* Waiting State */}
-        {!hasPlayedAudio && !isAnswered && (
+        {!audioHasFinished && !isAnswered && (
           <div className="text-center py-12 text-gray-500">
             <p>Play the audio above to begin...</p>
           </div>

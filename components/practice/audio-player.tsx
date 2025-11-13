@@ -1,15 +1,16 @@
 "use client";
 
 import { PlayIcon, PauseIcon, ArrowPathIcon, SpeakerWaveIcon } from "@heroicons/react/24/outline";
-import { cn } from "@/lib/utils";
 import { useAudioPlayer } from "@/hooks/use-audio-player";
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
+import { cn } from "@/lib/utils";
 
 interface AudioPlayerProps {
   src: string;
   maxPlays?: number | null; // Limit number of plays (null = unlimited)
   onPlayCountChange?: (count: number) => void;
   autoPlay?: boolean;
+  onEnded?: () => void; // Callback when audio ends
   showWaveform?: boolean;
 }
 
@@ -18,6 +19,7 @@ export default function AudioPlayer({
   maxPlays = null,
   onPlayCountChange,
   autoPlay = false,
+  onEnded,
   showWaveform = true,
 }: AudioPlayerProps) {
   const {
@@ -34,7 +36,7 @@ export default function AudioPlayer({
     changeVolume,
     volume,
     audioRef,
-  } = useAudioPlayer({ src, maxPlays, onPlayCountChange, autoPlay });
+  } = useAudioPlayer({ src, maxPlays, onPlayCountChange, autoPlay, onEnded });
 
   // Use this hook if audio source comes from recording
   const { audioUrl } = useAudioRecorder();
