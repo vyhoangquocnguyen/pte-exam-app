@@ -1,61 +1,73 @@
+import ActivityTimeline from "@/components/dashboard/activity-timeline";
 import HeroStats from "@/components/dashboard/hero-stats";
-import SkillCard from "@/components/dashboard/skill-card";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import SkillsGrid from "@/components/dashboard/skill-grid";
 
-const userStats = {
-  targetScore: 75,
-  studyStreak: 12,
-  totalPracticeTime: "45h 15m",
-};
+export default function DashboardPage() {
+  // Mock data
+  const stats = {
+    totalScore: 72,
+    testCompleted: 24,
+    studyStreak: 7,
+    nextGoal: 79,
+  };
 
-const skillProgress = [
-  { skill: "Speaking", avgScore: 68, totalAttempts: 55 },
-  { skill: "Writing", avgScore: 72, totalAttempts: 32 },
-  { skill: "Reading", avgScore: 81, totalAttempts: 60 },
-  { skill: "Listening", avgScore: 75, totalAttempts: 48 },
-] as const;
+  const skills = [
+    {
+      name: "speaking" as const,
+      score: 74,
+      progress: 82,
+      recentTests: 2,
+    },
+    {
+      name: "writing" as const,
+      score: 68,
+      progress: 76,
+      recentTests: 1,
+    },
+    {
+      name: "reading" as const,
+      score: 76,
+      progress: 84,
+      recentTests: 1,
+    },
+    {
+      name: "listening" as const,
+      score: 70,
+      progress: 78,
+      recentTests: 2,
+    },
+  ];
 
-const DashboardPage = () => {
+  const recentActivity = [
+    { type: "speaking" as const, task: "Read Aloud", score: 78, time: "2 hours ago", exerciseId: "ex123" },
+    { type: "writing" as const, task: "Essay Writing", score: 72, time: "5 hours ago", exerciseId: "ex456" },
+    { type: "reading" as const, task: "MCQ Multiple", score: 82, time: "1 day ago", exerciseId: "ex789" },
+  ];
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Welcome Back, </h1>
-      {/* Hero Stats */}
-      <HeroStats {...userStats} />
+    <div className=" min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 ">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h1 className="font-display text-4xl font-bold text-gray-900 mb-2">Welcome back, John! 👋</h1>
+          <p className="text-gray-600 text-lg">You're on a {stats.studyStreak}-day streak. Keep it up!</p>
+        </div>
 
-      {/* Skill Cards */}
-      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {skillProgress.map(({ skill, avgScore, totalAttempts }) => (
-          <SkillCard key={skill} skill={skill} avgScore={avgScore} totalAttempts={totalAttempts} />
-        ))}
-      </section>
+        {/* Hero Stats */}
+        <HeroStats stats={stats} />
 
-      {/* Activity Timeline/ Recent Attempt */}
-      <section className="grid gap-6 lg:grid-cols-3">
-        {/* Placeholder for the activity Timeline */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          {/* this section is actual ActivityTimeline component */}
-          <p className="text-muted-foreground h-40 flex items-center justify-center">
-            Activity time line : last 5 attmps or sth
-          </p>
-        </Card>
+        {/* Skills Grid */}
+        <div className="mb-8">
+          <h2 className="font-display text-3xl font-semibold text-gray-900 mb-6">Your Skills</h2>
+          <SkillsGrid skills={skills} />
+        </div>
 
-        {/* Placeholder for Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Practice</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-2">
-            {/* Replace with actual buttons linking to practice modules */}
-            <p className="text-muted-foreground">[Start Mock Test Button]</p>
-            <p className="text-muted-foreground">[Practice Writing Button]</p>
-          </CardContent>
-        </Card>
-      </section>
+        {/* Recent Activity */}
+        <div>
+          <h2 className="font-display text-3xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
+          <ActivityTimeline activities={recentActivity} />
+        </div>
+      </div>
     </div>
   );
-};
-
-export default DashboardPage;
+}

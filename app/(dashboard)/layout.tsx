@@ -1,14 +1,23 @@
 import NavBar from "@/components/layout/navbar";
-import Sidebar from "@/components/layout/sidebar";
+import SideBar from "@/components/layout/sidebar";
 import React from "react";
 
+
+
+
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <Sidebar />
-      <div className="flex flex-col">
+    <div className="h-screen w-full flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Top NavBar */}
+      <div className="flex-shrink-0">
         <NavBar />
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">{children}</main>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex flex-1 relative min-h-0 ">
+        <SideBar />
+        <main className="flex-1 overflow-y-auto min-w-0 py-6 lg:pt-16 px-4 sm:px-6 lg:ml-64 scrollbar-hidden">{children}</main>
       </div>
     </div>
   );
