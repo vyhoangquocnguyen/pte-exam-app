@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 interface UseTimerProps {
   initialTime: number;
@@ -8,11 +8,7 @@ interface UseTimerProps {
   onTimeUp?: () => void;
 }
 
-export function useTimer({
-  initialTime,
-  isRunning = true,
-  onTimeUp,
-}: UseTimerProps) {
+export function useTimer({ initialTime, isRunning = true, onTimeUp }: UseTimerProps) {
   const [timeLeft, setTimeLeft] = useState(initialTime);
 
   useEffect(() => {
