@@ -9,7 +9,7 @@ import NavigationButtons from "@/components/practice/navigation-buttons";
 import RestartButton from "@/components/practice/restart-button";
 import PhaseTimer from "@/components/practice/phase-timer";
 import CompletionScreen from "@/components/practice/completion-screen";
-import { mockReadAloudExercises } from "@/lib/mock-data/exercises";
+import { mockReadAloudExercises } from "@/lib/mock-data/moc-exercises";
 import { usePreparationTimer } from "@/hooks/use-preparation-timer";
 
 export default function ReadAloudPage() {

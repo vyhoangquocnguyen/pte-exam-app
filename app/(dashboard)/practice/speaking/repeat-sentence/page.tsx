@@ -9,7 +9,7 @@ import AudioRecorder from "@/components/practice/audio-recorder";
 import ProgressIndicator from "@/components/practice/progress-indicator";
 import NavigationButtons from "@/components/practice/navigation-buttons";
 import CompletionScreen from "@/components/practice/completion-screen";
-import { mockRepeatSentenceExercises } from "@/lib/mock-data/exercises";
+import { mockRepeatSentenceExercises } from "@/lib/mock-data/moc-exercises";
 
 export default function RepeatSentencePage() {
   const exercises = mockRepeatSentenceExercises;
