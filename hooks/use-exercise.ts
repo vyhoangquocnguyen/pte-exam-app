@@ -2,79 +2,111 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Exercise, ExerciseAnswer, ExerciseFeedback, ExercisePhase, ExerciseResults } from "@/types/exercise-schemas";
-;
-
 interface UseExerciseOptions {
   exercises: Exercise[];
   onComplete?: (results: ExerciseResults) => void;
 }
 
+interface ExerciseResults {
+  answers: Record<string, ExerciseAnswer>;
+  feedbacks: Record<string, ExerciseFeedback>;
+  totalTime: number;
+  completedAt: Date;
+}
+
 export function useExercise({ exercises, onComplete }: UseExerciseOptions) {
+  // STATE
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<ExercisePhase>("instructions");
   const [answers, setAnswers] = useState<Record<string, ExerciseAnswer>>({});
-  const [feedback, setFeedback] = useState<Record<string, ExerciseFeedback>>({});
+  const [feedbacks, setFeedbacks] = useState<Record<string, ExerciseFeedback>>({});
 
+  // REFS
+  // ref to track the start time of the exercise session
   const startTimeRef = useRef<number>(0);
 
+  // useEffect to set the start time when the exercise session begins.
   useEffect(() => {
     if (startTimeRef.current === 0) {
+      //The side effect (impure action) happens safely inside useEffect
       startTimeRef.current = Date.now();
     }
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once on mount
 
+  // COMPUTE VALUES
   const currentExercise = exercises[currentIndex];
-  const isLastQuestion = currentIndex === exercises.length - 1;
-  const isFirstQuestion = currentIndex === 0;
+  const isLastExercise = currentIndex === exercises.length - 1;
+  const isFirstExercise = currentIndex === 0;
+  const answeredCount = Object.keys(answers).length;
 
+  // SAVE DATA
+
+  // save answer for a specific exercise
   const saveAnswer = useCallback((exerciseId: string, answer: ExerciseAnswer) => {
     setAnswers((prev) => ({ ...prev, [exerciseId]: answer }));
   }, []);
 
+  // save feed back for a specific exercise
   const saveFeedback = useCallback((exerciseId: string, feedbackData: ExerciseFeedback) => {
-    setFeedback((prev) => ({ ...prev, [exerciseId]: feedbackData }));
+    setFeedbacks((prev) => ({ ...prev, [exerciseId]: feedbackData }));
   }, []);
 
+  // NAVIGATION HANDLERS
+  // go to the next question(or complete if last)
   const goToNext = useCallback(() => {
-    if (!isLastQuestion) {
-      setCurrentIndex((prev) => prev + 1);
-      setPhase("instructions");
-    } else {
+    if (isLastExercise) {
+      //Excercise complete - calculate total time
       const totalTime = Date.now() - startTimeRef.current;
+
       onComplete?.({
         answers,
-        feedback,
+        feedbacks,
         totalTime,
         completedAt: new Date(),
       });
+    } else {
+      //Move to next exercise
+      setCurrentIndex((prev) => prev + 1);
+      setPhase("instructions");
     }
-  }, [isLastQuestion, answers, feedback, onComplete]);
+  }, [isLastExercise, onComplete, answers, feedbacks]);
 
+  // go to the previous question
   const goToPrevious = useCallback(() => {
-    if (!isFirstQuestion) {
+    if (!isFirstExercise) {
       setCurrentIndex((prev) => prev - 1);
+
+      // If already answered, go to review phase
       const prevExercise = exercises[currentIndex - 1];
       setPhase(answers[prevExercise.id] ? "review" : "instructions");
     }
-  }, [isFirstQuestion, exercises, currentIndex, answers]);
+  }, [isFirstExercise, currentIndex, answers, exercises]);
 
-  const goToQuestion = useCallback(
+  // go to specific question by index
+  const goToExercise = useCallback(
     (index: number) => {
       if (index >= 0 && index < exercises.length) {
         setCurrentIndex(index);
-        setPhase(answers[exercises[index].id] ? "review" : "instructions");
+
+        // Determine phase based on whether the exercise has been answered
+        const targetExercise = exercises[index];
+        setPhase(answers[targetExercise.id] ? "review" : "instructions");
       }
     },
-    [exercises, answers]
+    [answers, exercises]
   );
 
-  const hasAnswer = useCallback(
+  // QUERIES: check State
+
+  // Check if a question has been answered
+  const hasAnswered = useCallback(
     (exerciseId: string) => {
       return !!answers[exerciseId];
     },
     [answers]
   );
 
+  // Get answer for a specific question
   const getAnswer = useCallback(
     (exerciseId: string) => {
       return answers[exerciseId];
@@ -82,44 +114,55 @@ export function useExercise({ exercises, onComplete }: UseExerciseOptions) {
     [answers]
   );
 
+  // Get feedback for a specific question
   const getFeedback = useCallback(
     (exerciseId: string) => {
-      return feedback[exerciseId];
+      return feedbacks[exerciseId];
     },
-    [feedback]
+    [feedbacks]
   );
 
+  // ACTIONS: Reset
+  // Reset the entire exercise session
   const reset = useCallback(() => {
     setCurrentIndex(0);
     setPhase("instructions");
     setAnswers({});
-    setFeedback({});
+    setFeedbacks({});
     startTimeRef.current = Date.now();
   }, []);
 
   return {
-    // State
+    // STATE
     currentExercise,
     currentIndex,
     phase,
     totalQuestions: exercises.length,
-    isFirstQuestion,
-    isLastQuestion,
+    answeredCount,
 
-    // Actions
+    // NAVIGATION FLAGS
+    isFirstExercise,
+    isLastExercise,
+
+    // ACTIONS: STATE MANAGEMENT
     setPhase,
     saveAnswer,
     saveFeedback,
+
+    // ACTIONS: NAVIGATION
     goToNext,
     goToPrevious,
-    goToQuestion,
-    reset,
+    goToExercise,
 
-    // Queries
-    hasAnswer,
+    // QUERIES: CHECK STATE
+    hasAnswered,
     getAnswer,
     getFeedback,
-    answeredCount: Object.keys(answers).length,
+
+    // ACTIONS: RESET
+    reset,
+
+    //PROGRESS TRACKING
     progress: ((currentIndex + 1) / exercises.length) * 100,
   };
 }
