@@ -7,13 +7,6 @@ interface UseExerciseOptions {
   onComplete?: (results: ExerciseResults) => void;
 }
 
-interface ExerciseResults {
-  answers: Record<string, ExerciseAnswer>;
-  feedbacks: Record<string, ExerciseFeedback>;
-  totalTime: number;
-  completedAt: Date;
-}
-
 export function useExercise({ exercises, onComplete }: UseExerciseOptions) {
   // STATE
   const [currentIndex, setCurrentIndex] = useState(0);
