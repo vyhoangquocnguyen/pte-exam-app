@@ -12,7 +12,7 @@ export function useExercise({ exercises, onComplete }: UseExerciseOptions) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<ExercisePhase>("instructions");
   const [answers, setAnswers] = useState<Record<string, ExerciseAnswer>>({});
-  const [feedbacks, setFeedbacks] = useState<Record<string, ExerciseFeedback>>({});
+  const [feedback, setFeedback] = useState<Record<string, ExerciseFeedback>>({});
 
   // REFS
   // ref to track the start time of the exercise session
@@ -41,7 +41,7 @@ export function useExercise({ exercises, onComplete }: UseExerciseOptions) {
 
   // save feed back for a specific exercise
   const saveFeedback = useCallback((exerciseId: string, feedbackData: ExerciseFeedback) => {
-    setFeedbacks((prev) => ({ ...prev, [exerciseId]: feedbackData }));
+    setFeedback((prev) => ({ ...prev, [exerciseId]: feedbackData }));
   }, []);
 
   // NAVIGATION HANDLERS
@@ -53,7 +53,7 @@ export function useExercise({ exercises, onComplete }: UseExerciseOptions) {
 
       onComplete?.({
         answers,
-        feedbacks,
+        feedback,
         totalTime,
         completedAt: new Date(),
       });
@@ -62,7 +62,7 @@ export function useExercise({ exercises, onComplete }: UseExerciseOptions) {
       setCurrentIndex((prev) => prev + 1);
       setPhase("instructions");
     }
-  }, [isLastExercise, onComplete, answers, feedbacks]);
+  }, [isLastExercise, onComplete, answers, feedback]);
 
   // go to the previous question
   const goToPrevious = useCallback(() => {
@@ -110,9 +110,9 @@ export function useExercise({ exercises, onComplete }: UseExerciseOptions) {
   // Get feedback for a specific question
   const getFeedback = useCallback(
     (exerciseId: string) => {
-      return feedbacks[exerciseId];
+      return feedback[exerciseId];
     },
-    [feedbacks]
+    [feedback]
   );
 
   // ACTIONS: Reset
@@ -121,7 +121,7 @@ export function useExercise({ exercises, onComplete }: UseExerciseOptions) {
     setCurrentIndex(0);
     setPhase("instructions");
     setAnswers({});
-    setFeedbacks({});
+    setFeedback({});
     startTimeRef.current = Date.now();
   }, []);
 
