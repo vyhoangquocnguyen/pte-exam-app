@@ -54,11 +54,10 @@ export function ExerciseLayouts<T extends ExerciseContent>({
   answeredCount,
   exercises,
   timer,
-  timerPhase,
   onStartExercise,
 }: ExerciseLayoutProps<T>) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-purple-50 p-6">
       <div className="max-w-5xl mx-auto space-y-4">
         {/* Header with Timer */}
         <ExerciseHeader
@@ -67,7 +66,6 @@ export function ExerciseLayouts<T extends ExerciseContent>({
           currentQuestion={currentIndex + 1}
           totalQuestions={totalQuestions}
           timer={timer}
-          timerPhase={timerPhase}
         />
 
         {/* Instructions (conditional) */}

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAudioRecorder } from "./use-audio-recorder";
-import { useExercise } from "./use-exercise";
 import { usePreparationTimer } from "./use-preparation-timer";
 import { Exercise, SpeakingContent, ExercisePhase, AudioAnswer, assertSpeakingContent } from "@/types/exercise-schemas";
 
@@ -93,7 +92,7 @@ export function useSpeakingExercise({ exercises, onComplete }: UseSpeakingExerci
   const goToNext = useCallback(() => {
     if (currentIndex < exercises.length - 1) {
       setCurrentIndex((prev) => prev + 1);
-      setPhase("instructions");
+      setPhase("preparation");
       timer.reset();
     } else {
       // Complete exercise
@@ -111,8 +110,9 @@ export function useSpeakingExercise({ exercises, onComplete }: UseSpeakingExerci
     if (currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
       const prevExercise = exercises[currentIndex - 1];
-      setPhase(answers[prevExercise.id] ? "review" : "instructions");
+      setPhase(answers[prevExercise.id] ? "review" : "preparation");
       timer.reset();
+      timer.start();
     }
   }, [currentIndex, exercises, answers, timer]);
 
@@ -142,8 +142,9 @@ export function useSpeakingExercise({ exercises, onComplete }: UseSpeakingExerci
       if (index >= 0 && index < exercises.length) {
         setCurrentIndex(index);
         const exercise = exercises[index];
-        setPhase(answers[exercise.id] ? "review" : "instructions");
+        setPhase(answers[exercise.id] ? "review" : "preparation");
         timer.reset();
+        timer.start();
       }
     },
     [exercises, answers, timer]

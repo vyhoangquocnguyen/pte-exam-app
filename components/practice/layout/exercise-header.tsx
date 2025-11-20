@@ -1,7 +1,7 @@
 "use client";
 
-import { Clock, Mic } from "lucide-react";
 import { Difficulty } from "@/types/exercise-schemas";
+import { ClockIcon } from "@heroicons/react/24/outline";
 
 interface ExerciseHeaderProps {
   title: string;
@@ -13,27 +13,13 @@ interface ExerciseHeaderProps {
     formatTime: (seconds: number) => string;
     isRunning: boolean;
   };
-  timerPhase?: "preparation" | "recording" | "active";
 }
 
-export function ExerciseHeader({
-  title,
-  difficulty,
-  currentQuestion,
-  totalQuestions,
-  timer,
-  timerPhase,
-}: ExerciseHeaderProps) {
+export function ExerciseHeader({ title, difficulty, currentQuestion, totalQuestions, timer }: ExerciseHeaderProps) {
   const difficultyColors = {
     [Difficulty.EASY]: "bg-green-100 text-green-700",
     [Difficulty.MEDIUM]: "bg-yellow-100 text-yellow-700",
     [Difficulty.HARD]: "bg-red-100 text-red-700",
-  };
-
-  const timerConfig = {
-    preparation: { label: "Preparation", color: "bg-blue-500", icon: Clock },
-    recording: { label: "Recording", color: "bg-red-500", icon: Mic },
-    active: { label: "Time Left", color: "bg-purple-500", icon: Clock },
   };
 
   return (
@@ -53,16 +39,10 @@ export function ExerciseHeader({
           </div>
 
           {/* Timer (if provided) */}
-          {timer && timerPhase && (
-            <div className={`${timerConfig[timerPhase].color} text-white px-4 py-2 rounded-lg flex items-center gap-2`}>
-              {(() => {
-                const Icon = timerConfig[timerPhase].icon;
-                return <Icon className="w-5 h-5" />;
-              })()}
-              <div className="flex flex-col">
-                <span className="text-xs opacity-90">{timerConfig[timerPhase].label}</span>
-                <span className="text-lg font-bold">{timer.formatTime(timer.timeLeft)}</span>
-              </div>
+          {timer && (
+            <div className="flex flex-col">
+              <ClockIcon className="w-5 h-5 text-gray-500" />
+              <span className="text-lg font-bold">{timer.formatTime(timer.timeLeft)}</span>
             </div>
           )}
         </div>

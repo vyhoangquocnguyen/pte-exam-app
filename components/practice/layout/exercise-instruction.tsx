@@ -9,7 +9,6 @@ import {
   DescribeImageContent,
 } from "@/types/exercise-schemas";
 
-// Assuming these types based on functionality. They should be in types/exercise.ts
 interface RetellLectureContent {
   preparationTime: number;
   recordingTime: number;
@@ -142,7 +141,7 @@ export function ExerciseInstructions({ exerciseType, subType, content, onStart }
           <ol className="space-y-2">
             {instructions.steps.map((step, idx) => (
               <li key={idx} className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-semibold">
+                <span className="shrink-0 w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-semibold">
                   {idx + 1}
                 </span>
                 <span className="text-gray-700">{step}</span>
@@ -167,7 +166,7 @@ export function ExerciseInstructions({ exerciseType, subType, content, onStart }
         {/* Start Button */}
         <button
           onClick={onStart}
-          className="w-full mt-6 inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity shadow-lg text-lg font-semibold">
+          className="w-full mt-6 inline-flex items-center justify-center gap-2 px-8 py-4 bg-linear-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity shadow-lg text-lg font-semibold">
           <PlayIcon className="w-6 h-6" />
           Start Exercise
         </button>

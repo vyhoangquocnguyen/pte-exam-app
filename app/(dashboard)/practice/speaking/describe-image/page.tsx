@@ -10,7 +10,7 @@ import AudioRecorder from "@/components/practice/audio-recorder";
 import ProgressIndicator from "@/components/practice/progress-indicator";
 import NavigationButtons from "@/components/practice/navigation-buttons";
 import PhaseTimer from "@/components/practice/phase-timer";
-import { mockDescribeImageExercises } from "@/lib/mock-data/moc-exercises";
+import { mockDescribeImageExercises } from "@/lib/mock-data/mock-exercises";
 
 export default function DescribeImagePage() {
   const exercises = mockDescribeImageExercises;

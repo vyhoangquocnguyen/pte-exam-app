@@ -1,140 +1,105 @@
 "use client";
 
-import { useExerciseState } from "@/hooks/use-exercise-state";
-import ExerciseContainer from "@/components/practice/exercise-container";
-import QuestionHeader from "@/components/practice/question-header";
-import AudioRecorder from "@/components/practice/audio-recorder";
-import ProgressIndicator from "@/components/practice/progress-indicator";
-import NavigationButtons from "@/components/practice/navigation-buttons";
-import RestartButton from "@/components/practice/restart-button";
-import PhaseTimer from "@/components/practice/phase-timer";
-import CompletionScreen from "@/components/practice/completion-screen";
-import { mockReadAloudExercises } from "@/lib/mock-data/moc-exercises";
-import { usePreparationTimer } from "@/hooks/use-preparation-timer";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+import { mockReadAloudExercises } from "@/lib/mock-data/mock-exercises";
+
+import { useSpeakingExercise } from "@/hooks/use-speaking-exercise";
+
+import { ExerciseHeader } from "@/components/practice/layout/exercise-header";
+import { ExerciseNavigation } from "@/components/practice/layout/exercise-navigation";
+import { ReadAloudDisplay } from "@/components/practice/content/speaking/read-aloud-display";
+import { SpeakingPreparationView } from "@/components/practice/content/speaking/shared/speaking-preparation-view";
+import { ReadAloudContent } from "@/types/exercise-schemas";
+import { ExerciseInstructions } from "@/components/practice/layout/exercise-instruction";
 
 export default function ReadAloudPage() {
-  const exercises = mockReadAloudExercises;
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const {
-    currentQuestion,
-    currentQuestionIndex,
-    totalQuestions,
-    submitAnswer,
-    goToNext,
-    goToPrevious,
-    isQuestionAnswered,
-    getAnsweredIndices,
-    resetCurrentQuestion,
-  } = useExerciseState({
-    exerciseId: "read-aloud-session",
-    exerciseType: "speaking",
-    totalQuestions: exercises.length,
-    onComplete: (data) => {
-      console.log("Read Aloud exercises completed:", data);
-      // TODO: Send to backend for AI evaluation
+  // Initialize exercises (simulate API call)
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Speaking exercise hook
+  const speaking = useSpeakingExercise({
+    exercises: mockReadAloudExercises, //feeding exercise data
+    onComplete: (results) => {
+      console.log("✅ Exercise completed:", results);
+      console.log("📊 Total answers:", Object.keys(results.answers).length);
+      console.log("⏱️ Total time:", Math.floor(results.totalTime / 1000), "seconds");
+
+      // TODO: Save results to backend
+      // await fetch('/api/exercises/submit', {
+      //   method: 'POST',
+      //   body: JSON.stringify(results)
+      // });
+
+      // Show completion message
+      alert(`Great job! You completed all ${Object.keys(results.answers).length} questions.`);
+
+      // Redirect to speaking overview
+      router.push("/practice/speaking");
     },
   });
 
-  const currentExercise = exercises[currentQuestionIndex];
-  const questionId = currentExercise.id;
-  const isAnswered = isQuestionAnswered(questionId);
-
-  const handleRecordingComplete = (blob: Blob, duration: number) => {
-    submitAnswer(questionId, {
-      audioBlob: blob,
-      duration,
-      text: currentExercise.content.text,
-    });
-  };
-
-  const timer = usePreparationTimer({
-    preparationTime: currentExercise.content.preparationTime,
-    recordingTime: currentExercise.content.recordingTime,
-    autoStart: true, // Starts the preparation timer automatically
-  });
-
-  const handleRestartQuestion = () => {
-    resetCurrentQuestion(questionId);
-    timer.reset();
-    timer.start(); // Restart the preparation timer
-  };
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-purple-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">Loading exercises...</p>
+        </div>
+      </div>
+    );
+  }
+  const exercise = speaking.currentExercise;
 
   return (
-    <ExerciseContainer maxWidth="full" backHref="/practice/speaking" backLabel="Back to Speaking">
-      {/* Progress Bar */}
-      <div className="mb-6">
-        <ProgressIndicator
-          currentQuestion={currentQuestion}
-          totalQuestions={totalQuestions}
-          answeredQuestions={getAnsweredIndices()}
-          variant="segments"
+    <>
+      <ExerciseHeader
+        title={exercise.title}
+        difficulty={exercise.difficulty}
+        currentQuestion={speaking.currentIndex + 1}
+        totalQuestions={speaking.totalQuestions}
+      />
+      {speaking.phase === "instructions" && (
+        <ExerciseInstructions
+          exerciseType={exercise.type}
+          subType={exercise.subType}
+          content={exercise.content as ReadAloudContent}
+          onStart={speaking.startExercise}
         />
-      </div>
+      )}
+      {speaking.phase === "preparation" && (
+        <SpeakingPreparationView
+          timeLeft={speaking.timer.timeLeft}
+          totalTime={speaking.timer.totalTime}
+          onSkip={speaking.timer.skipPreparation}>
+          {(exercise.content as ReadAloudContent).text}
+        </SpeakingPreparationView>
+      )}
 
-      {/* Question Header */}
-      <QuestionHeader
-        questionNumber={currentQuestion}
-        totalQuestions={totalQuestions}
-        title="Read Aloud"
-        instructions={`Look at the text below. You have ${currentExercise.content.preparationTime} seconds to read it silently, then record yourself reading it aloud.`}
-        timeLimit={currentExercise.timeLimit}
-        showTimer={false} // The PhaseTimer will handle the display
+      <ExerciseNavigation
+        canGoNext={speaking.canGoNext}
+        canGoPrevious={speaking.canGoPrevious}
+        onNext={speaking.goToNext}
+        onPrevious={speaking.goToPrevious}
+        currentIndex={speaking.currentIndex}
+        totalQuestions={speaking.totalQuestions}
+        isLocked={speaking.canGoNext}
+        answeredCount={speaking.answeredQuestions}
+        exercises={mockReadAloudExercises}
+        onJumpTo={speaking.goToExercise}
       />
-
-      {/* Main Content */}
-      <div className="bg-white rounded-2xl p-6 sm:p-8 mb-6 card-shadow-lg">
-        {/* Text to Read */}
-        <div className="mb-8 p-6 bg-gray-50 rounded-xl border-2 border-gray-200">
-          <p className="text-lg leading-relaxed text-gray-800">{currentExercise.content.text}</p>
-        </div>
-
-        {/* Recording Interface */}
-        {!isAnswered ? (
-          <>
-            <PhaseTimer
-              isPreparation={timer.isPreparation}
-              isRecording={timer.isRecording}
-              isCompleted={timer.isCompleted}
-              isAnswered={isAnswered}
-              timeLeft={timer.timeLeft}
-              formatTime={timer.formatTime}
-            />
-            {timer.isPreparation && (
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-900">
-                  <span className="font-semibold">👀 Prepare:</span> Read the passage silently. The recording will begin
-                  automatically when the timer ends.
-                </p>
-              </div>
-            )}
-
-            {timer.isRecording && (
-              <AudioRecorder
-                autoStart={true}
-                maxDuration={currentExercise.content.recordingTime}
-                onRecordingComplete={handleRecordingComplete}
-              />
-            )}
-          </>
-        ) : (
-          <CompletionScreen
-            title="Recording Submitted!"
-            description="Your response has been recorded and will be evaluated.">
-            <RestartButton onRestart={handleRestartQuestion} variant="secondary" size="sm" />
-          </CompletionScreen>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <NavigationButtons
-        onPrevious={goToPrevious}
-        onNext={goToNext}
-        currentQuestion={currentQuestion}
-        totalQuestions={totalQuestions}
-        isAnswered={isAnswered || timer.isCompleted}
-        showSubmit={false}
-        layout="spread"
-      />
-    </ExerciseContainer>
+    </>
   );
 }
